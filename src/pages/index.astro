@@ -1,17 +1,405 @@
 ---
+import { Icon } from "astro-icon/components";
+import HologramGlobe from "../components/HologramGlobe.astro";
+import "../styles/global.css";
 
+const navItems = ["Home", "Worlds", "Systems", "About", "Contact"];
+
+const systemNodes = [
+    { label: "Luau Architecture", state: "active" },
+    { label: "Roblox UI Systems", state: "active" },
+    { label: "Gameplay Mechanics", state: "processing" },
+    { label: "Server Services", state: "inactive" },
+];
+
+const worldTargets = [
+    { name: "Mount Mandala", type: "Roblox Experience" },
+    { name: "Sawit Empire", type: "Tycoon Prototype" },
+    { name: "Parkir Liar", type: "Gameplay System" },
+    { name: "Sagu Terbang System", type: "Vehicle Controller" },
+];
+
+const footerLinks = [
+    "GITHUB",
+    "ROBLOX",
+    "DISCORD",
+    "EMAIL",
+    "RESUME",
+    "SOURCE",
+];
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content={Astro.generator} />
+        <meta
+            name="description"
+            content="Alit Purnama portfolio cockpit for Roblox world building, Luau architecture, and gameplay systems."
+        />
+        <title>Alit Purnama - World Builder Cockpit</title>
+    </head>
+    <body class="selection:bg-[#d5bffe] selection:text-[#5d4b81]">
+        <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-b from-[#dee8ff]/60 to-[#f0f3ff]"
+            >
+            </div>
+            <div
+                class="absolute inset-0 bg-[url('/images/liquid-glass-blueprint-bg.jpg')] bg-cover bg-center opacity-35 mix-blend-overlay"
+            >
+            </div>
+            <div class="blueprint-grid absolute inset-0"></div>
+            <span
+                class="font-system absolute left-4 top-24 text-[10px] text-[#575e72]/50 md:left-8"
+                >+X_AXIS</span
+            >
+            <span
+                class="font-system absolute bottom-28 right-4 text-[10px] text-[#575e72]/50 md:right-8"
+                >+Y_AXIS</span
+            >
+        </div>
+
+        <nav
+            aria-label="HUD navigation"
+            class="fixed left-0 top-0 z-50 flex w-full items-center justify-between gap-4 border-b border-white/10 bg-transparent px-4 py-3 backdrop-blur-[12px] md:h-16 md:px-8 lg:px-10"
+        >
+            <div class="flex min-w-0 items-center gap-5 md:gap-8">
+                <a
+                    href="#top"
+                    class="font-display shrink-0 text-lg text-[#111c2d] md:text-2xl"
+                    >WORLD_BUILDER</a
+                >
+                <div class="hidden items-center gap-4 md:flex">
+                    {
+                        navItems.map((item) => (
+                            <a
+                                href={`#${item.toLowerCase()}`}
+                                class={`font-system pb-1 text-[10px] uppercase transition-colors ${
+                                    item === "Home"
+                                        ? "border-b-2 border-[#67558c] text-[#67558c]"
+                                        : "text-[#45464c] hover:text-[#575e72]"
+                                }`}
+                            >
+                                {item}
+                            </a>
+                        ))
+                    }
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button
+                    type="button"
+                    aria-label="Settings"
+                    class="grid h-10 w-10 place-items-center text-[#111c2d] transition-colors hover:text-[#575e72]"
+                >
+                    <Icon name="mdi:cog" class="h-5 w-5" aria-hidden="true" />
+                </button>
+                <button
+                    type="button"
+                    aria-label="Terminal"
+                    class="grid h-10 w-10 place-items-center text-[#111c2d] transition-colors hover:text-[#575e72]"
+                >
+                    <Icon
+                        name="mdi:console"
+                        class="h-5 w-5"
+                        aria-hidden="true"
+                    />
+                </button>
+            </div>
+        </nav>
+
+        <main
+            id="top"
+            class="relative z-10 flex min-h-screen w-full flex-col items-center justify-center px-4 pb-10 pt-24 md:h-[100dvh] md:min-h-0 md:overflow-hidden md:px-7 md:pb-12 md:pt-16 lg:px-9"
+        >
+            <section
+                class="desktop-hero-grid mx-auto grid min-h-[75vh] w-full max-w-[84rem] grid-cols-1 items-center gap-6 md:min-h-0 md:grid-cols-12 md:gap-5 lg:gap-6"
+            >
+                <aside
+                    class="flex flex-col gap-6 md:col-span-3 md:gap-4 lg:gap-5"
+                >
+                    <div
+                        class="glass-thin corner-brackets rounded p-5 md:p-5"
+                    >
+                        <div class="glass-highlight"></div>
+                        <div class="relative z-10 mb-3 flex items-center gap-2">
+                            <span
+                                class="font-system text-xs font-bold text-[#2d3748]"
+                                >SYS_NODES</span
+                            >
+                            <div class="h-px flex-1 bg-[#76777d]/35"></div>
+                        </div>
+                        <ul
+                            class="relative z-10 space-y-2 md:space-y-1.5 lg:space-y-2"
+                        >
+                            {
+                                systemNodes.map((node) => (
+                                    <li class="group flex cursor-crosshair items-center gap-2">
+                                        <span
+                                            class={`tech-pip ${node.state}`}
+                                        />
+                                        <span class="font-system text-sm font-semibold text-[#111c2d] transition-colors group-hover:text-[#67558c] md:text-sm lg:text-[15px]">
+                                            {node.label}
+                                        </span>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </div>
+
+                    <div
+                        class="glass-thin corner-brackets rounded p-5 md:p-5"
+                    >
+                        <div class="mb-3 flex items-center justify-between">
+                            <span
+                                class="font-system text-xs font-bold text-[#2d3748]"
+                                >WORLD_TARGETS</span
+                            >
+                            <Icon
+                                name="mdi:web"
+                                class="h-4 w-4 text-[#45464c]"
+                                aria-hidden="true"
+                            />
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            {
+                                worldTargets.map((world) => (
+                                    <button
+                                        type="button"
+                                        class="group relative flex flex-col overflow-hidden rounded border border-transparent px-3 py-2 text-left transition-all hover:border-[#67558c]/25 hover:bg-white/50 md:py-2 lg:py-2.5"
+                                    >
+                                        <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#67558c]/12 to-transparent opacity-60 transition-opacity group-hover:opacity-100" />
+                                        <span class="relative z-10 flex w-full items-center justify-between gap-3">
+                                            <span class="font-system text-sm font-bold text-[#111c2d] md:text-sm lg:text-[15px]">
+                                                {world.name}
+                                            </span>
+                                            <span class="font-system text-[10px] text-[#67558c] opacity-0 transition-opacity group-hover:opacity-100">
+                                                SEL
+                                            </span>
+                                        </span>
+                                        <span class="font-system relative z-10 mt-1 text-[11px] font-medium text-[#2d3748]/80">
+                                            {world.type}
+                                        </span>
+                                    </button>
+                                ))
+                            }
+                        </div>
+                    </div>
+
+                    <div class="ml-2 flex items-center gap-2 opacity-60">
+                        <span
+                            class="font-system rounded-sm border border-[#575e72]/30 px-2 py-0.5 text-[10px] text-[#575e72]"
+                            >PlayerLoop</span
+                        >
+                    </div>
+                </aside>
+
+                <section
+                    class="relative flex min-h-[500px] flex-col items-center justify-center md:col-span-6 md:h-full md:min-h-0 md:-translate-y-4 lg:-translate-y-4"
+                >
+                    <div
+                        class="relative z-20 flex aspect-square w-full max-w-xl items-center justify-center md:max-w-[min(38vw,30rem)] lg:max-w-[min(38vw,31rem)]"
+                    >
+                        <div class="absolute left-4 top-8 flex flex-col">
+                            <span
+                                class="font-system text-xs font-bold text-[#2d3748]"
+                                >WORLD_BUILD_01</span
+                            >
+                            <div
+                                class="mt-2 flex items-center gap-2 rounded-sm border border-[#67558c]/20 bg-white/35 px-2 py-1 backdrop-blur-md"
+                            >
+                                <span class="tech-pip active"></span>
+                                <span
+                                    class="font-system text-[10px] text-[#111c2d]"
+                                    >STATUS: ONLINE</span
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="hud-connector bottom-12 -left-2 hidden h-16 w-16 border-b-2 border-l-2 md:absolute md:block"
+                        >
+                        </div>
+                        <div
+                            class="hud-connector bottom-12 -right-2 hidden h-16 w-16 scale-x-[-1] border-b-2 border-l-2 md:absolute md:block"
+                        >
+                        </div>
+                        <div
+                            class="pointer-events-none absolute left-1/2 top-1/2 h-24 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#575e72]/12 blur-3xl"
+                        >
+                        </div>
+
+                        <HologramGlobe />
+                    </div>
+
+                    <div
+                        class="relative z-20 -mt-10 flex flex-col items-center text-center md:-mt-[4.45rem] lg:-mt-[4.25rem]"
+                    >
+                        <div
+                            class="mb-2 h-6 w-px bg-gradient-to-b from-[#575e72]/40 to-transparent md:h-4 lg:h-5"
+                        >
+                        </div>
+                        <h1
+                            class="font-display mb-2 text-5xl leading-[0.95] text-[#0d1728] md:text-[clamp(3rem,5vw,4.15rem)]"
+                        >
+                            Alit Purnama
+                        </h1>
+                        <div
+                            class="mb-1.5 flex max-w-full items-center justify-center gap-3"
+                        >
+                            <span class="tech-pip active"></span>
+                            <p
+                                class="font-system text-sm font-bold tracking-[0.03em] text-[#273244] md:whitespace-nowrap md:text-sm lg:text-[15px]"
+                            >
+                                Roblox Game Developer &amp; Informatics
+                                Engineering Student
+                            </p>
+                            <span class="tech-pip active"></span>
+                        </div>
+                        <p
+                            class="mb-2 max-w-[37rem] text-balance px-3 text-sm font-semibold leading-5 text-[#1f2c3d] md:text-sm lg:text-[15px]"
+                        >
+                            I build Roblox worlds, gameplay systems, and web
+                            tools with clean interaction and scalable
+                            architecture.
+                        </p>
+                        <div
+                            class="mt-0 flex flex-wrap justify-center gap-4"
+                        >
+                            <a
+                                href="#worlds"
+                                class="btn-glass btn-primary-glass corner-brackets font-system px-6 py-3 text-xs font-bold text-[#111c2d] md:min-h-10 md:px-6 md:py-2 md:text-[13px] lg:min-h-11 lg:px-7 lg:py-2.5"
+                            >
+                                <span>VIEW WORLDS</span>
+                                <Icon
+                                    name="mdi:compass-outline"
+                                    class="h-[18px] w-[18px]"
+                                    aria-hidden="true"
+                                />
+                            </a>
+                            <a
+                                href="#contact"
+                                class="btn-glass btn-ghost-glass corner-brackets font-system px-6 py-3 text-xs font-bold text-[#111c2d] md:min-h-10 md:px-6 md:py-2 md:text-[13px] lg:min-h-11 lg:px-7 lg:py-2.5"
+                            >
+                                <span>CONTACT ME</span>
+                                <Icon
+                                    name="mdi:email-outline"
+                                    class="h-[18px] w-[18px]"
+                                    aria-hidden="true"
+                                />
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <aside
+                    class="flex flex-col gap-6 md:col-span-3 md:w-[calc(100%+1rem)] md:-translate-x-4 md:justify-end md:gap-4 md:pb-9 lg:w-[calc(100%+1.4rem)] lg:-translate-x-6 lg:gap-5 lg:pb-12"
+                >
+                    <div class="flex justify-end opacity-60">
+                        <span
+                            class="font-system rounded-sm border border-[#67558c]/30 px-2 py-0.5 text-[10px] text-[#67558c]"
+                            >WorldState</span
+                        >
+                    </div>
+
+                    <div
+                        class="glass-thin corner-brackets flex items-center gap-4 rounded p-5 md:p-5 lg:p-6"
+                    >
+                        <div
+                            class="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded border border-white/50 bg-[#d8e3fb]/80 backdrop-blur-sm"
+                        >
+                            <Icon
+                                name="mdi:account"
+                                class="h-6 w-6 text-[#575e72]"
+                                aria-hidden="true"
+                            />
+                        </div>
+                        <div class="flex min-w-0 flex-col">
+                            <span
+                                class="font-system text-sm font-bold text-[#111c2d]"
+                                >OP_ALIT</span
+                            >
+                            <div class="mt-1 flex items-center gap-2">
+                                <Icon
+                                    name="mdi:map-marker"
+                                    class="h-3 w-3 text-[#45464c]"
+                                    aria-hidden="true"
+                                />
+                                <span
+                                    class="font-system text-[11px] font-medium text-[#2d3748]"
+                                    >Indonesia</span
+                                >
+                            </div>
+                            <div class="mt-1 flex items-center gap-1">
+                                <span class="tech-pip active"></span>
+                                <span
+                                    class="font-system text-[10px] text-[#67558c]"
+                                    >SERVER_ONLINE</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="glass-ultra corner-brackets rounded p-5 md:p-5 lg:p-6"
+                    >
+                        <div
+                            class="mb-3 flex items-center justify-between gap-3"
+                        >
+                            <span
+                                class="font-system text-xs font-bold text-[#2d3748]"
+                                >BUILD_STATUS</span
+                            >
+                            <span
+                                class="font-system rounded-sm bg-white/30 px-1.5 text-[10px] text-[#111c2d]"
+                                >Build_85</span
+                            >
+                        </div>
+                        <span
+                            class="font-system mb-2 block text-[15px] font-semibold text-[#111c2d]"
+                            >Portfolio Website</span
+                        >
+                        <div
+                            class="relative mt-3 h-2 w-full overflow-hidden rounded-full border border-white/30 bg-[#d8e3fb]/50"
+                        >
+                            <div class="h-full w-[85%] bg-[#67558c]"></div>
+                        </div>
+                        <div class="mt-2 flex items-center justify-between">
+                            <span class="font-system text-[10px] text-[#45464c]"
+                                >INIT</span
+                            >
+                            <span class="font-system text-[10px] text-[#67558c]"
+                                >85% DEPLOYED</span
+                            >
+                        </div>
+                    </div>
+                </aside>
+            </section>
+        </main>
+
+        <footer
+            class="relative z-20 flex w-full flex-col gap-4 border-t border-white/10 bg-[#f9f9ff]/30 px-4 py-4 backdrop-blur-md md:fixed md:bottom-0 md:left-0 md:h-12 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-0 lg:px-10"
+        >
+            <!-- Automatic year  -->
+            <span class="font-system text-xs text-[#c4c7c9]"
+                >© {new Date().getFullYear()} SYSTEM_ARCHITECT // BUILD_85</span
+            >
+            <div class="flex flex-wrap gap-4">
+                {
+                    footerLinks.map((link) => (
+                        <a
+                            class="font-system text-xs text-[#65686a] opacity-80 transition-colors hover:text-[#67558c] hover:opacity-100"
+                            href="#"
+                        >
+                            {link}
+                        </a>
+                    ))
+                }
+            </div>
+        </footer>
+    </body>
 </html>

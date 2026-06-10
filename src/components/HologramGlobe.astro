@@ -1,0 +1,355 @@
+---
+const labels = [
+    { text: "WORLD_CORE", className: "top-[13%] left-[15%]" },
+    { text: "WorldState", className: "top-[23%] right-[6%]" },
+    { text: "Spawn_Node", className: "bottom-[28%] left-[4%]" },
+    { text: "Terrain_Module", className: "bottom-[18%] right-[8%]" },
+    { text: "Build_85", className: "bottom-[12%] left-[41%]" },
+];
+---
+
+<div
+    class="hologram-globe relative isolate aspect-square w-[clamp(20rem,37vw,30rem)] max-w-full"
+    data-hologram-globe
+>
+    <div class="globe-aura absolute inset-[9%] rounded-full"></div>
+    <div class="globe-platform absolute inset-x-[21%] bottom-[10%] h-[15%]"></div>
+    <canvas
+        class="relative z-10 h-full w-full cursor-grab touch-none active:cursor-grabbing"
+        data-globe-canvas
+        aria-hidden="true"
+    ></canvas>
+    <div class="globe-scanline pointer-events-none absolute inset-[8%] z-20 rounded-full"></div>
+    <div class="globe-reticle pointer-events-none absolute inset-[14%] z-20 rounded-full"></div>
+    {
+        labels.map((label) => (
+            <span
+                class={`font-system pointer-events-none absolute z-30 rounded-sm border border-[#67558c]/20 bg-white/42 px-2 py-1 text-[9px] font-bold text-[#273244] shadow-[0_0_18px_rgba(144,205,244,0.22)] backdrop-blur-md ${label.className}`}
+            >
+                {label.text}
+            </span>
+        ))
+    }
+</div>
+
+<style>
+    .hologram-globe {
+        filter: drop-shadow(0 22px 44px rgba(87, 94, 114, 0.22));
+    }
+
+    .globe-aura {
+        background:
+            radial-gradient(circle, rgba(255, 255, 255, 0.56) 0 14%, rgba(144, 205, 244, 0.34) 38%, rgba(213, 191, 254, 0.24) 58%, transparent 74%),
+            radial-gradient(circle at 58% 42%, rgba(154, 230, 180, 0.26), transparent 38%);
+        box-shadow:
+            0 0 68px rgba(144, 205, 244, 0.36),
+            inset 0 0 58px rgba(103, 85, 140, 0.2);
+    }
+
+    .globe-platform {
+        border-radius: 999px;
+        background: radial-gradient(ellipse, rgba(87, 94, 114, 0.2), transparent 72%);
+        filter: blur(8px);
+    }
+
+    .globe-scanline {
+        opacity: 0.38;
+        mix-blend-mode: multiply;
+        background: repeating-linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0),
+            rgba(255, 255, 255, 0) 5px,
+            rgba(87, 94, 114, 0.14) 6px,
+            rgba(87, 94, 114, 0.14) 7px
+        );
+        animation: scanline-drift 7s linear infinite;
+    }
+
+    .globe-reticle {
+        border: 1px solid rgba(255, 255, 255, 0.68);
+        box-shadow:
+            inset 0 0 0 1px rgba(144, 205, 244, 0.28),
+            0 0 30px rgba(144, 205, 244, 0.22);
+    }
+
+    .globe-reticle::before,
+    .globe-reticle::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        border: 1px solid rgba(103, 85, 140, 0.24);
+        border-radius: 999px;
+        transform: translate(-50%, -50%);
+    }
+
+    .globe-reticle::before {
+        width: 76%;
+        height: 76%;
+    }
+
+    .globe-reticle::after {
+        width: 104%;
+        height: 30%;
+    }
+
+    @keyframes scanline-drift {
+        to {
+            background-position-y: 96px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .globe-scanline {
+            opacity: 0.18;
+            animation-duration: 18s;
+        }
+    }
+</style>
+
+<script>
+    import * as THREE from "three";
+    import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    document.querySelectorAll("[data-hologram-globe]").forEach((root) => {
+        const canvas = root.querySelector("[data-globe-canvas]");
+
+        if (!(root instanceof HTMLElement) || !(canvas instanceof HTMLCanvasElement)) {
+            return;
+        }
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+        const renderer = new THREE.WebGLRenderer({
+            canvas,
+            alpha: true,
+            antialias: true,
+            powerPreference: "high-performance",
+        });
+        const controls = new OrbitControls(camera, canvas);
+        const core = new THREE.Group();
+        const blocks = new THREE.Group();
+        const nodes = new THREE.Group();
+        const disposables = [];
+        let frameId = 0;
+        let lastTime = performance.now();
+        let elapsed = 0;
+
+        camera.position.set(0, 0.2, 5.15);
+        scene.add(core);
+        core.add(blocks, nodes);
+
+        renderer.setClearColor(0x000000, 0);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.055;
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        controls.rotateSpeed = 0.55;
+        controls.addEventListener("change", () => {
+            root.dataset.globeInteracted = "true";
+        });
+
+        scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+        const keyLight = new THREE.PointLight(0xc8e8ff, 1.6, 10);
+        keyLight.position.set(2.2, 1.8, 3.8);
+        scene.add(keyLight);
+
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x90cdf4,
+            transparent: true,
+            opacity: 0.24,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        });
+        const glowSphere = new THREE.Mesh(new THREE.SphereGeometry(1.78, 48, 32), glowMaterial);
+        disposables.push(glowSphere.geometry, glowMaterial);
+        core.add(glowSphere);
+
+        const wireMaterial = new THREE.LineBasicMaterial({
+            color: 0x7fc7ff,
+            transparent: true,
+            opacity: 0.68,
+        });
+        const wireSphere = new THREE.LineSegments(
+            new THREE.WireframeGeometry(new THREE.SphereGeometry(1.55, 20, 12)),
+            wireMaterial,
+        );
+        disposables.push(wireSphere.geometry, wireMaterial);
+        core.add(wireSphere);
+
+        const shellMaterial = new THREE.MeshBasicMaterial({
+            color: 0xd9f2ff,
+            transparent: true,
+            opacity: 0.18,
+            wireframe: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        });
+        const shell = new THREE.Mesh(new THREE.SphereGeometry(1.47, 24, 12), shellMaterial);
+        disposables.push(shell.geometry, shellMaterial);
+        core.add(shell);
+
+        const latitudeMaterial = new THREE.LineBasicMaterial({
+            color: 0xf7fbff,
+            transparent: true,
+            opacity: 0.56,
+        });
+        [-0.9, -0.45, 0, 0.45, 0.9].forEach((y) => {
+            const radius = Math.sqrt(1.55 * 1.55 - y * y);
+            const ring = new THREE.LineLoop(
+                new THREE.BufferGeometry().setFromPoints(makeCircle(radius, y, "xz")),
+                latitudeMaterial,
+            );
+            disposables.push(ring.geometry);
+            core.add(ring);
+        });
+        [0, Math.PI / 4, Math.PI / 2, (Math.PI * 3) / 4].forEach((rotationY) => {
+            const meridian = new THREE.LineLoop(
+                new THREE.BufferGeometry().setFromPoints(makeCircle(1.55, 0, "xy")),
+                latitudeMaterial,
+            );
+            meridian.rotation.y = rotationY;
+            disposables.push(meridian.geometry);
+            core.add(meridian);
+        });
+        disposables.push(latitudeMaterial);
+
+        const orbitMaterial = new THREE.LineBasicMaterial({
+            color: 0xbda7ff,
+            transparent: true,
+            opacity: 0.72,
+        });
+        [
+            { scale: [2.25, 2.25, 2.25], rotation: [1.2, 0.1, 0.35] },
+            { scale: [2.05, 2.05, 2.05], rotation: [1.45, 0.8, -0.4] },
+            { scale: [1.95, 1.95, 1.95], rotation: [0.45, 1.2, 1.1] },
+        ].forEach((config) => {
+            const ring = new THREE.LineLoop(
+                new THREE.BufferGeometry().setFromPoints(makeCircle(1, 0, "xy")),
+                orbitMaterial,
+            );
+            ring.scale.set(config.scale[0], config.scale[1], config.scale[2]);
+            ring.rotation.set(config.rotation[0], config.rotation[1], config.rotation[2]);
+            disposables.push(ring.geometry);
+            core.add(ring);
+        });
+        disposables.push(orbitMaterial);
+
+        const nodeGeometry = new THREE.SphereGeometry(0.06, 14, 10);
+        const nodeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x9ae6b4,
+            transparent: true,
+            opacity: 1,
+        });
+        disposables.push(nodeGeometry, nodeMaterial);
+
+        makeNodePositions().forEach((position, index) => {
+            const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+            node.position.copy(position);
+            node.scale.setScalar(index % 3 === 0 ? 1.45 : 1);
+            nodes.add(node);
+        });
+
+        const cubeGeometry = new THREE.BoxGeometry(0.14, 0.14, 0.14);
+        const cubeMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.92,
+            wireframe: true,
+        });
+        disposables.push(cubeGeometry, cubeMaterial);
+
+        for (let i = 0; i < 22; i += 1) {
+            const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+            const angle = i * 1.73;
+            const radius = 1.9 + (i % 5) * 0.12;
+            cube.position.set(
+                Math.cos(angle) * radius,
+                ((i % 7) - 3) * 0.18,
+                Math.sin(angle) * radius,
+            );
+            cube.rotation.set(i * 0.31, i * 0.17, i * 0.23);
+            cube.scale.setScalar(0.75 + (i % 4) * 0.18);
+            blocks.add(cube);
+        }
+
+        function resize() {
+            const size = root.getBoundingClientRect();
+            const width = Math.max(1, Math.floor(size.width));
+            const height = Math.max(1, Math.floor(size.height));
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(width, height, false);
+        }
+
+        function animate() {
+            const now = performance.now();
+            const delta = Math.min((now - lastTime) / 1000, 0.05);
+            lastTime = now;
+            elapsed += delta;
+            const autoRotateSpeed = reduceMotion.matches ? 0.035 : 0.12;
+
+            frameId = window.requestAnimationFrame(animate);
+            core.rotation.y += delta * autoRotateSpeed;
+            core.rotation.x = Math.sin(elapsed * 0.24) * 0.08;
+            blocks.rotation.y -= delta * 0.2;
+            blocks.children.forEach((block, index) => {
+                block.rotation.x += delta * (0.24 + index * 0.004);
+                block.rotation.y += delta * 0.18;
+                block.position.y += Math.sin(elapsed * 1.2 + index) * 0.0008;
+            });
+            nodes.children.forEach((node, index) => {
+                const pulse = 1 + Math.sin(elapsed * 1.8 + index) * 0.22;
+                node.scale.setScalar(pulse * (index % 3 === 0 ? 1.45 : 1));
+            });
+            glowSphere.scale.setScalar(1 + Math.sin(elapsed * 1.4) * 0.025);
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function dispose() {
+            window.cancelAnimationFrame(frameId);
+            window.removeEventListener("resize", resize);
+            controls.dispose();
+            disposables.forEach((item) => item?.dispose?.());
+            renderer.dispose();
+        }
+
+        window.addEventListener("resize", resize, { passive: true });
+        window.addEventListener("pagehide", dispose, { once: true });
+        resize();
+        animate();
+    });
+
+    function makeCircle(radius, y, plane) {
+        const points = [];
+        for (let i = 0; i < 128; i += 1) {
+            const angle = (i / 128) * Math.PI * 2;
+            const x = Math.cos(angle) * radius;
+            const z = Math.sin(angle) * radius;
+            points.push(plane === "xz" ? new THREE.Vector3(x, y, z) : new THREE.Vector3(x, z, y));
+        }
+        return points;
+    }
+
+    function makeNodePositions() {
+        return [
+            new THREE.Vector3(0.38, 1.38, 0.55),
+            new THREE.Vector3(-1.1, 0.72, 0.64),
+            new THREE.Vector3(1.22, 0.1, -0.76),
+            new THREE.Vector3(-0.62, -0.88, 1.05),
+            new THREE.Vector3(0.95, -0.82, 0.72),
+            new THREE.Vector3(-1.32, -0.08, -0.44),
+            new THREE.Vector3(0.18, 0.28, 1.5),
+            new THREE.Vector3(0.72, 1.02, -0.86),
+            new THREE.Vector3(-0.28, -1.36, -0.58),
+        ];
+    }
+</script>
